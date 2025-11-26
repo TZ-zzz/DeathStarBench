@@ -13,6 +13,7 @@
 #include "../ThriftClient.h"
 #include "../logger.h"
 #include "../tracing.h"
+#include "TraceCollector.h" //
 
 namespace social_network {
 
@@ -41,6 +42,9 @@ TextHandler::TextHandler(
 void TextHandler::ComposeText(
     TextServiceReturn &_return, int64_t req_id, const std::string &text,
     const std::map<std::string, std::string> &carrier) {
+  
+  TraceCollector::GetInstance().LogTextRequest(req_id, text);
+
   // Initialize a span
   TextMapReader reader(carrier);
   std::map<std::string, std::string> writer_text_map;
@@ -138,7 +142,7 @@ void TextHandler::ComposeText(
     LOG(error) << "Failed to get shortened urls from url-shorten-service";
     throw;
   }
-
+  TraceCollector::GetInstance().LogUrlResult(req_id, target_urls);
   std::vector<UserMention> user_mentions;
   try {
     user_mentions = user_mention_future.get();
@@ -146,6 +150,7 @@ void TextHandler::ComposeText(
     LOG(error) << "Failed to upload user mentions to user-mention-service";
     throw;
   }
+  TraceCollector::GetInstance().LogUserMentionResult(req_id, user_mentions);
 
   std::string updated_text;
   if (!urls.empty()) {

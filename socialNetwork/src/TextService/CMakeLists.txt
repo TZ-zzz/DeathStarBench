@@ -1,6 +1,7 @@
 add_executable(
     TextService
     TextService.cpp
+    TraceCollector.h
     ${THRIFT_GEN_CPP_DIR}/TextService.cpp
     ${THRIFT_GEN_CPP_DIR}/UserMentionService.cpp
     ${THRIFT_GEN_CPP_DIR}/UrlShortenService.cpp
