@@ -11,7 +11,7 @@ from thrift.transport import TTransport
 from thrift.protocol import TBinaryProtocol
 
 def register():
-  socket = TSocket.TSocket("ath-8.ece.cornell.edu", 10005)
+  socket = TSocket.TSocket("localhost", 10005)
   transport = TTransport.TFramedTransport(socket)
   protocol = TBinaryProtocol.TBinaryProtocol(transport)
   client = UserService.Client(protocol)
@@ -26,15 +26,16 @@ def register():
   transport.close()
 
 def login():
-  socket = TSocket.TSocket("ath-8.ece.cornell.edu", 10005)
+  socket = TSocket.TSocket("localhost", 10005)
   transport = TTransport.TFramedTransport(socket)
   protocol = TBinaryProtocol.TBinaryProtocol(transport)
   client = UserService.Client(protocol)
   transport.open()
   req_id = uuid.uuid4().int & 0x7FFFFFFFFFFFFFFF
   print(client.Login(req_id, "username_0", "password_0", {}))
-  # print(client.Login(req_id, "username_1", "password_2", {}))
-  # print(client.Login(req_id, "username_2", "password_2", {}))
+  
+  print(client.Login(req_id, "username_1", "password_1", {}))
+  print(client.Login(req_id, "username_2", "password_2", {}))
   transport.close()
 
 if __name__ == '__main__':

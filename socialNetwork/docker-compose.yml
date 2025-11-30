@@ -3,8 +3,8 @@ services:
   social-graph-service:
     image: deathstarbench/social-network-microservices:latest
     hostname: social-graph-service
-    #    ports:
-    #      - 10000:9090
+    ports:
+      - 10000:9090
     depends_on:
       jaeger-agent:
         condition: service_started
@@ -37,10 +37,10 @@ services:
     restart: always
 
   compose-post-service:
-    image: deathstarbench/social-network-microservices:latest
+    image: tz/deathstarbench:latest
     hostname: compose-post-service
-    #    ports:
-    #      - 10001:9090
+    ports:
+      - 10001:9090
     restart: always
     depends_on:
       jaeger-agent:
@@ -81,8 +81,8 @@ services:
   user-timeline-service:
     image: deathstarbench/social-network-microservices:latest
     hostname: user-timeline-service
-    #    ports:
-    #      - 10003:9090
+    ports:
+      - 10003:9090
     restart: always
     depends_on:
       jaeger-agent:
@@ -110,8 +110,8 @@ services:
   url-shorten-service:
     image: deathstarbench/social-network-microservices:latest
     hostname: url-shorten-service
-    #    ports:
-    #      - 10004:9090
+    ports:
+      - 10004:9090
     restart: always
     entrypoint: UrlShortenService
     depends_on:
@@ -139,8 +139,8 @@ services:
   user-service:
     image: deathstarbench/social-network-microservices:latest
     hostname: user-service
-    #    ports:
-    #      - 10005:9090
+    ports:
+      - 10005:9090
     restart: always
     depends_on:
       jaeger-agent:
@@ -168,8 +168,8 @@ services:
   media-service:
     image: deathstarbench/social-network-microservices:latest
     hostname: media-service
-    #    ports:
-    #      - 10006:9090
+    ports:
+      - 10006:9090
     depends_on:
       jaeger-agent:
         condition: service_started
@@ -197,8 +197,8 @@ services:
   text-service:
     image: deathstarbench/social-network-microservices:latest
     hostname: text-service
-    #    ports:
-    #      - 10007:9090
+    ports:
+      - 10007:9090
     restart: always
     depends_on:
       jaeger-agent:
@@ -210,8 +210,8 @@ services:
   unique-id-service:
     image: deathstarbench/social-network-microservices:latest
     hostname: unique-id-service
-    #    ports:
-    #      - 10008:9090
+    ports:
+      - 10008:9090
     restart: always
     depends_on:
       jaeger-agent:
@@ -223,8 +223,8 @@ services:
   user-mention-service:
     image: deathstarbench/social-network-microservices:latest
     hostname: user-mention-service
-    #    ports:
-    #      - 10009:9090
+    ports:
+      - 10009:9090
     depends_on:
       jaeger-agent:
         condition: service_started
@@ -236,8 +236,8 @@ services:
   home-timeline-service:
     image: deathstarbench/social-network-microservices:latest
     hostname: home-timeline-service
-    #    ports:
-    #      - 10010:9090
+    ports:
+      - 10010:9090
     depends_on:
       jaeger-agent:
         condition: service_started
