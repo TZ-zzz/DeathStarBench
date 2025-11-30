@@ -21,6 +21,7 @@
 #include "../ThriftClient.h"
 #include "../logger.h"
 #include "../tracing.h"
+#include "../magic_instruction.h"
 
 namespace social_network {
 using json = nlohmann::json;
@@ -131,6 +132,7 @@ Creator ComposePostHandler::_ComposeCreaterHelper(
   auto user_client = user_client_wrapper->GetClient();
   Creator _return_creator;
   try {
+    MAGIC_USER_SEND();
     user_client->ComposeCreatorWithUserId(_return_creator, req_id, user_id,
                                           username, writer_text_map);
   } catch (...) {
@@ -169,6 +171,7 @@ TextServiceReturn ComposePostHandler::_ComposeTextHelper(
   auto text_client = text_client_wrapper->GetClient();
   TextServiceReturn _return_text;
   try {
+    MAGIC_TEXT_SEND();
     text_client->ComposeText(_return_text, req_id, text, writer_text_map);
   } catch (...) {
     LOG(error) << "Failed to send compose-text to text-service";
@@ -312,6 +315,7 @@ void ComposePostHandler::_UploadUserTimelineHelper(
   }
   auto user_timeline_client = user_timeline_client_wrapper->GetClient();
   try {
+    MAGIC_USER_TIMELINE_SEND();
     user_timeline_client->WriteUserTimeline(req_id, post_id, user_id, timestamp,
                                             writer_text_map);
   } catch (...) {
@@ -346,6 +350,7 @@ void ComposePostHandler::_UploadHomeTimelineHelper(
   }
   auto home_timeline_client = home_timeline_client_wrapper->GetClient();
   try {
+    MAGIC_HOME_TIMELINE_SEND();
     home_timeline_client->WriteHomeTimeline(req_id, post_id, user_id, timestamp,
                                             user_mentions_id, writer_text_map);
   } catch (...) {
@@ -363,6 +368,7 @@ void ComposePostHandler::ComposePost(
     const std::string &text, const std::vector<int64_t> &media_ids,
     const std::vector<std::string> &media_types, const PostType::type post_type,
     const std::map<std::string, std::string> &carrier) {
+  MAGIC_START_WORKLOAD();
   TextMapReader reader(carrier);
   auto parent_span = opentracing::Tracer::Global()->Extract(reader);
   auto span = opentracing::Tracer::Global()->StartSpan(
@@ -393,8 +399,10 @@ void ComposePostHandler::ComposePost(
   // try
   // {
   post.post_id = unique_id_future.get();
+  MAGIC_USER_RETURN();
   post.creator = creator_future.get();
   post.media = media_future.get();
+  MAGIC_TEXT_RETURN();
   auto text_return = text_future.get();
   post.text = text_return.text;
   post.urls = text_return.urls;
@@ -430,7 +438,9 @@ void ComposePostHandler::ComposePost(
   // try
   // {
   post_future.get();
+  MAGIC_USER_RETURN();
   user_timeline_future.get();
+  MAGIC_HOME_TIMELINE_RETURN();
   home_timeline_future.get();
   // }
   // catch (...)
@@ -438,6 +448,7 @@ void ComposePostHandler::ComposePost(
   //   throw;
   // }
   span->Finish();
+  MAGIC_END_WORKLOAD();
 }
 
 }  // namespace social_network
