@@ -1,12 +1,12 @@
 #ifndef TRACING_MAGIC_H
 #define TRACING_MAGIC_H
 
-#define MAGIC_START_WORKLOAD()  __asm__ __volatile__ ("xchg %%r10, %%r10" : : : "r10"); 
+#define MAGIC_START_WORKLOAD()  __asm__ __volatile__ ("xchg %%r10, %%r10" : : : "r10");  
 #define MAGIC_END_WORKLOAD()    __asm__ __volatile__ ("xchg %%r11, %%r11" : : : "r11");
 
 // Define more magic instructions For PostCompose workload
-#define MAGIC_SEND_REQUEST(int caller, int callee)  __asm__ __volatile__ ("mv %[id], %%r12" : : [id] "r" (callee) : "r12");
-#define MAGIC_RECEIVE_RESPONSE(int caller, int callee)    __asm__ __volatile__ ("mv %[id], %%r13" : : [id] "r" (caller) : "r13");
+#define MAGIC_SEND_REQUEST(caller, callee)  __asm__ __volatile__ ("mov %[id], %%r8\n\txchg %%r8, %%r8" : : [id] "r" (callee) : "r8");
+#define MAGIC_RECEIVE_RESPONSE(caller, callee)    __asm__ __volatile__ ("mov %[id], %%r9\n\txchg %%r9, %%r9" : : [id] "r" (callee) : "r9");
 
 #define social_graph_service 2
 #define social_graph_mongodb 3
