@@ -84,6 +84,7 @@ void UserMentionHandler::ComposeUserMentions(
     auto get_span = opentracing::Tracer::Global()->StartSpan(
         "compose_user_mentions_memcached_get_client",
         {opentracing::ChildOf(&span->context())});
+    MAGIC_SEND_REQUEST(user_mention_service, user_memcached);
     rc = memcached_mget(client, keys, key_sizes, usernames.size());
     if (rc != MEMCACHED_SUCCESS) {
       LOG(error) << "Cannot get usernames of request " << req_id << ": "
@@ -106,6 +107,7 @@ void UserMentionHandler::ComposeUserMentions(
       return_value = memcached_fetch(client, return_key, &return_key_length,
                                      &return_value_length, &flags, &rc);
       if (return_value == nullptr) {
+        MAGIC_RECEIVE_RESPONSE(user_mention_service, user_memcached);
         LOG(debug) << "Memcached mget finished "
                    << memcached_strerror(client, rc);
         break;
@@ -186,7 +188,7 @@ void UserMentionHandler::ComposeUserMentions(
       mongoc_cursor_t *cursor =
           mongoc_collection_find_with_opts(collection, query, nullptr, nullptr);
       const bson_t *doc;
-
+      MAGIC_SEND_REQUEST(user_mention_service, user_mongodb);
       while (mongoc_cursor_next(cursor, &doc)) {
         bson_iter_t iter;
         UserMention new_user_mention;
@@ -218,6 +220,7 @@ void UserMentionHandler::ComposeUserMentions(
         }
         user_mentions.emplace_back(new_user_mention);
       }
+      MAGIC_RECEIVE_RESPONSE(user_mention_service, user_mongodb);
       bson_destroy(query);
       mongoc_cursor_destroy(cursor);
       mongoc_collection_destroy(collection);

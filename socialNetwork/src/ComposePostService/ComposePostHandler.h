@@ -132,7 +132,7 @@ Creator ComposePostHandler::_ComposeCreaterHelper(
   auto user_client = user_client_wrapper->GetClient();
   Creator _return_creator;
   try {
-    MAGIC_USER_SEND();
+    MAGIC_SEND_REQUEST(compose_post_service, user_service);
     user_client->ComposeCreatorWithUserId(_return_creator, req_id, user_id,
                                           username, writer_text_map);
   } catch (...) {
@@ -171,7 +171,7 @@ TextServiceReturn ComposePostHandler::_ComposeTextHelper(
   auto text_client = text_client_wrapper->GetClient();
   TextServiceReturn _return_text;
   try {
-    MAGIC_TEXT_SEND();
+    MAGIC_SEND_REQUEST(compose_post_service, text_service);
     text_client->ComposeText(_return_text, req_id, text, writer_text_map);
   } catch (...) {
     LOG(error) << "Failed to send compose-text to text-service";
@@ -210,6 +210,7 @@ std::vector<Media> ComposePostHandler::_ComposeMediaHelper(
   auto media_client = media_client_wrapper->GetClient();
   std::vector<Media> _return_media;
   try {
+    MAGIC_SEND_REQUEST(compose_post_service, media_service);
     media_client->ComposeMedia(_return_media, req_id, media_types, media_ids,
                                writer_text_map);
   } catch (...) {
@@ -247,6 +248,7 @@ int64_t ComposePostHandler::_ComposeUniqueIdHelper(
   auto unique_id_client = unique_id_client_wrapper->GetClient();
   int64_t _return_unique_id;
   try {
+    MAGIC_SEND_REQUEST(compose_post_service, unique_id_service);
     _return_unique_id =
         unique_id_client->ComposeUniqueId(req_id, post_type, writer_text_map);
   } catch (...) {
@@ -282,6 +284,7 @@ void ComposePostHandler::_UploadPostHelper(
   }
   auto post_storage_client = post_storage_client_wrapper->GetClient();
   try {
+    MAGIC_SEND_REQUEST(compose_post_service, post_storage_service);
     post_storage_client->StorePost(req_id, post, writer_text_map);
   } catch (...) {
     _post_storage_client_pool->Remove(post_storage_client_wrapper);
@@ -315,7 +318,7 @@ void ComposePostHandler::_UploadUserTimelineHelper(
   }
   auto user_timeline_client = user_timeline_client_wrapper->GetClient();
   try {
-    MAGIC_USER_TIMELINE_SEND();
+    MAGIC_SEND_REQUEST(compose_post_service, user_timeline_service);
     user_timeline_client->WriteUserTimeline(req_id, post_id, user_id, timestamp,
                                             writer_text_map);
   } catch (...) {
@@ -350,7 +353,7 @@ void ComposePostHandler::_UploadHomeTimelineHelper(
   }
   auto home_timeline_client = home_timeline_client_wrapper->GetClient();
   try {
-    MAGIC_HOME_TIMELINE_SEND();
+    MAGIC_SEND_REQUEST(compose_post_service, home_timeline_service);
     home_timeline_client->WriteHomeTimeline(req_id, post_id, user_id, timestamp,
                                             user_mentions_id, writer_text_map);
   } catch (...) {
@@ -399,10 +402,11 @@ void ComposePostHandler::ComposePost(
   // try
   // {
   post.post_id = unique_id_future.get();
-  MAGIC_USER_RETURN();
+  MAGIC_RECEIVE_RESPONSE(compose_post_service, unique_id_service);
   post.creator = creator_future.get();
+  MAGIC_RECEIVE_RESPONSE(compose_post_service, user_service);
   post.media = media_future.get();
-  MAGIC_TEXT_RETURN();
+  MAGIC_RECEIVE_RESPONSE(compose_post_service, media_service);
   auto text_return = text_future.get();
   post.text = text_return.text;
   post.urls = text_return.urls;
@@ -438,10 +442,11 @@ void ComposePostHandler::ComposePost(
   // try
   // {
   post_future.get();
-  MAGIC_USER_RETURN();
+  MAGIC_RECEIVE_RESPONSE(compose_post_service, post_storage_service);
   user_timeline_future.get();
-  MAGIC_HOME_TIMELINE_RETURN();
+  MAGIC_RECEIVE_RESPONSE(compose_post_service, user_timeline_service);
   home_timeline_future.get();
+  MAGIC_RECEIVE_RESPONSE(compose_post_service, home_timeline_service);
   // }
   // catch (...)
   // {

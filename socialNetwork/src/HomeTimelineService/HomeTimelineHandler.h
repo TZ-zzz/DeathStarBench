@@ -123,8 +123,10 @@ void HomeTimelineHandler::WriteHomeTimeline(
   auto social_graph_client = social_graph_client_wrapper->GetClient();
   std::vector<int64_t> followers_id;
   try {
+    MAGIC_SEND_REQUEST(home_timeline_service, social_graph_service);
     social_graph_client->GetFollowers(followers_id, req_id, user_id,
                                       writer_text_map);
+    MAGIC_RECEIVE_RESPONSE(home_timeline_service, social_graph_service);
   } catch (...) {
     LOG(error) << "Failed to get followers from social-network-service";
     _social_graph_client_pool->Remove(social_graph_client_wrapper);
@@ -151,7 +153,9 @@ void HomeTimelineHandler::WriteHomeTimeline(
                   UpdateType::NOT_EXIST);
       }
       try {
+        MAGIC_SEND_REQUEST(home_timeline_service, home_timeline_redis);
         auto replies = pipe.exec();
+        MAGIC_RECEIVE_RESPONSE(home_timeline_service, home_timeline_redis);
       } catch (const Error &err) {
         LOG(error) << err.what();
         throw err;
@@ -165,7 +169,9 @@ void HomeTimelineHandler::WriteHomeTimeline(
                 UpdateType::NOT_EXIST);
         }
         try {
+            MAGIC_SEND_REQUEST(home_timeline_service, home_timeline_redis);
             auto replies = pipe.exec();
+            MAGIC_RECEIVE_RESPONSE(home_timeline_service, home_timeline_redis);
         }
         catch (const Error& err) {
             LOG(error) << err.what();
@@ -198,7 +204,9 @@ void HomeTimelineHandler::WriteHomeTimeline(
       try {
         for(auto const &it : pipe_map) {
           auto _pipe = it.second.get();
+          MAGIC_SEND_REQUEST(home_timeline_service, home_timeline_redis);
           _pipe->exec();
+          MAGIC_RECEIVE_RESPONSE(home_timeline_service, home_timeline_redis);
         }
 
       } catch (const Error &err) {

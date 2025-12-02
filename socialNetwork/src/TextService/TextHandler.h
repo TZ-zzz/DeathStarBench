@@ -92,6 +92,7 @@ void TextHandler::ComposeText(
     std::vector<Url> _return_urls;
     auto url_client = url_client_wrapper->GetClient();
     try {
+      MAGIC_SEND_REQUEST(text_service, url_shorten_service);
       url_client->ComposeUrls(_return_urls, req_id, urls, url_writer_text_map);
     } catch (...) {
       LOG(error) << "Failed to upload urls to url-shorten-service";
@@ -122,6 +123,7 @@ void TextHandler::ComposeText(
     std::vector<UserMention> _return_user_mentions;
     auto user_mention_client = user_mention_client_wrapper->GetClient();
     try {
+      MAGIC_SEND_REQUEST(text_service, user_mention_service);
       user_mention_client->ComposeUserMentions(_return_user_mentions, req_id,
                                                mention_usernames,
                                                user_mention_writer_text_map);
@@ -137,6 +139,7 @@ void TextHandler::ComposeText(
 
   std::vector<Url> target_urls;
   try {
+    MAGIC_RECEIVE_RESPONSE(text_service, url_shorten_service);
     target_urls = shortened_urls_future.get();
   } catch (...) {
     LOG(error) << "Failed to get shortened urls from url-shorten-service";
@@ -145,6 +148,7 @@ void TextHandler::ComposeText(
   // TraceCollector::GetInstance().LogUrlResult(req_id, target_urls);
   std::vector<UserMention> user_mentions;
   try {
+    MAGIC_RECEIVE_RESPONSE(text_service, user_mention_service);
     user_mentions = user_mention_future.get();
   } catch (...) {
     LOG(error) << "Failed to upload user mentions to user-mention-service";

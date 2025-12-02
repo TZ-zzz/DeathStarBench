@@ -14,6 +14,7 @@ services:
     entrypoint: SocialGraphService
     volumes:
       - ./config:/social-network-microservices/config
+    cpuset: "2"
 
   social-graph-mongodb:
     image: mongo:4.4.6
@@ -21,6 +22,7 @@ services:
     # ports:
     #   - 27018:27017
     restart: always
+    cpuset: "3"
 
   social-graph-redis:
     image: redis
@@ -28,6 +30,7 @@ services:
     # ports:
     #   - 6380:6379
     restart: always
+    cpuset: "4"
 
   home-timeline-redis:
     image: redis
@@ -35,6 +38,7 @@ services:
     # ports:
     #   - 6381:6379
     restart: always
+    cpuset: "5"
 
   compose-post-service:
     image: tz/deathstarbench:latest
@@ -48,6 +52,7 @@ services:
     entrypoint: ComposePostService
     volumes:
       - ./config:/social-network-microservices/config
+    cpuset: "6"
 
   post-storage-service:
     image: deathstarbench/social-network-microservices:latest
@@ -63,6 +68,7 @@ services:
     entrypoint: PostStorageService
     volumes:
       - ./config:/social-network-microservices/config
+    cpuset: "7"
 
   post-storage-memcached:
     image: memcached
@@ -70,6 +76,7 @@ services:
     #    ports:
     #      - 11212:11211
     restart: always
+    cpuset: "8"
 
   post-storage-mongodb:
     image: mongo:4.4.6
@@ -77,6 +84,7 @@ services:
     #    ports:
     #      - 27019:27017
     restart: always
+    cpuset: "9"
 
   user-timeline-service:
     image: deathstarbench/social-network-microservices:latest
@@ -92,6 +100,7 @@ services:
     entrypoint: UserTimelineService
     volumes:
       - ./config:/social-network-microservices/config
+    cpuset: "10"
 
   user-timeline-redis:
     image: redis
@@ -99,6 +108,7 @@ services:
     #    ports:
     #      - 6383:6379
     restart: always
+    cpuset: "11"
 
   user-timeline-mongodb:
     image: mongo:4.4.6
@@ -106,6 +116,7 @@ services:
     #    ports:
     #      - 27020:27017
     restart: always
+    cpuset: "12"
 
   url-shorten-service:
     image: deathstarbench/social-network-microservices:latest
@@ -121,6 +132,7 @@ services:
         condition: service_started
     volumes:
       - ./config:/social-network-microservices/config
+    cpuset: "13"
 
   url-shorten-memcached:
     image: memcached
@@ -128,6 +140,7 @@ services:
     #    ports:
     #      - 11213:11211
     restart: always
+    cpuset: "14"
 
   url-shorten-mongodb:
     image: mongo:4.4.6
@@ -135,6 +148,7 @@ services:
     #    ports:
     #      - 27021:27017
     restart: always
+    cpuset: "15"
 
   user-service:
     image: deathstarbench/social-network-microservices:latest
@@ -150,6 +164,7 @@ services:
     entrypoint: UserService
     volumes:
       - ./config:/social-network-microservices/config
+    cpuset: "16"
 
   user-memcached:
     image: memcached
@@ -157,6 +172,7 @@ services:
     #    ports:
     #      - 11214:11211
     restart: always
+    cpuset: "17"
 
   user-mongodb:
     image: mongo:4.4.6
@@ -164,6 +180,7 @@ services:
     # ports:
     #   - 27023:27017
     restart: always
+    cpuset: "18"
 
   media-service:
     image: deathstarbench/social-network-microservices:latest
@@ -179,6 +196,7 @@ services:
     entrypoint: MediaService
     volumes:
       - ./config:/social-network-microservices/config
+    cpuset: "19"
 
   media-memcached:
     image: memcached
@@ -186,6 +204,7 @@ services:
     #    ports:
     #      - 11215:11211
     restart: always
+    cpuset: "20"
 
   media-mongodb:
     image: mongo:4.4.6
@@ -193,6 +212,7 @@ services:
     #    ports:
     #      - 27024:27017
     restart: always
+    cpuset: "21"
 
   text-service:
     image: deathstarbench/social-network-microservices:latest
@@ -206,6 +226,7 @@ services:
     entrypoint: TextService
     volumes:
       - ./config:/social-network-microservices/config
+    cpuset: "22"
 
   unique-id-service:
     image: deathstarbench/social-network-microservices:latest
@@ -219,6 +240,7 @@ services:
     entrypoint: UniqueIdService
     volumes:
       - ./config:/social-network-microservices/config
+    cpuset: "23"
 
   user-mention-service:
     image: deathstarbench/social-network-microservices:latest
@@ -232,6 +254,7 @@ services:
     entrypoint: UserMentionService
     volumes:
       - ./config:/social-network-microservices/config
+    cpuset: "24"
 
   home-timeline-service:
     image: deathstarbench/social-network-microservices:latest
@@ -245,6 +268,7 @@ services:
     entrypoint: HomeTimelineService
     volumes:
       - ./config:/social-network-microservices/config
+    cpuset: "25"
 
   nginx-thrift:
     image: yg397/openresty-thrift:xenial
@@ -262,6 +286,7 @@ services:
       - ./nginx-web-server/jaeger-config.json:/usr/local/openresty/nginx/jaeger-config.json
       - ./gen-lua:/gen-lua
       - ./docker/openresty-thrift/lua-thrift:/usr/local/openresty/lualib/thrift
+    cpuset: "26"
 
   media-frontend:
     image: yg397/media-frontend:xenial
@@ -275,6 +300,7 @@ services:
     volumes:
       - ./media-frontend/lua-scripts:/usr/local/openresty/nginx/lua-scripts
       - ./media-frontend/conf/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf
+    cpuset: "27"
 
   jaeger-agent:
     image: jaegertracing/all-in-one:latest
@@ -289,3 +315,4 @@ services:
     restart: always
     environment:
       - COLLECTOR_ZIPKIN_HTTP_PORT=9411
+    cpuset: "28"

@@ -502,14 +502,20 @@ void SocialGraphHandler::GetFollowers(
   std::string key = std::to_string(user_id) + ":followers";
   try {
     if (_redis_client_pool) {
+      MAGIC_SEND_REQUEST(social_graph_service, social_graph_redis);
       _redis_client_pool->zrange(key, 0, -1, std::back_inserter(followers_str));
+      MAGIC_RECEIVE_RESPONSE(social_graph_service, social_graph_redis);
     } 
     else if (IsRedisReplicationEnabled()) {
+        MAGIC_SEND_REQUEST(social_graph_service, social_graph_redis);
         _redis_replica_client_pool->zrange(key, 0, -1, std::back_inserter(followers_str));
+        MAGIC_RECEIVE_RESPONSE(social_graph_service, social_graph_redis);
     }
     else {
+      MAGIC_SEND_REQUEST(social_graph_service, social_graph_redis);
       _redis_cluster_client_pool->zrange(key, 0, -1,
                                          std::back_inserter(followers_str));
+      MAGIC_RECEIVE_RESPONSE(social_graph_service, social_graph_redis);
     }
   } catch (const Error &err) {
     LOG(error) << err.what();
@@ -551,7 +557,9 @@ void SocialGraphHandler::GetFollowers(
     mongoc_cursor_t *cursor =
         mongoc_collection_find_with_opts(collection, query, nullptr, nullptr);
     const bson_t *doc;
+    MAGIC_SEND_REQUEST(social_graph_service, social_graph_mongodb);
     bool found = mongoc_cursor_next(cursor, &doc);
+    MAGIC_RECEIVE_RESPONSE(social_graph_service, social_graph_mongodb);
     if (found) {
       bson_iter_t iter_0;
       bson_iter_t iter_1;
@@ -594,14 +602,20 @@ void SocialGraphHandler::GetFollowers(
           {opentracing::ChildOf(&span->context())});
       try {
         if (_redis_client_pool) {
+          MAGIC_SEND_REQUEST(social_graph_service, social_graph_redis);
           _redis_client_pool->zadd(key, redis_zset.begin(), redis_zset.end());
+          MAGIC_RECEIVE_RESPONSE(social_graph_service, social_graph_redis);
         } 
         else if (IsRedisReplicationEnabled()) {
+            MAGIC_SEND_REQUEST(social_graph_service, social_graph_redis);
             _redis_primary_client_pool->zadd(key, redis_zset.begin(), redis_zset.end());
+            MAGIC_RECEIVE_RESPONSE(social_graph_service, social_graph_redis);
         }
         else {
+          MAGIC_SEND_REQUEST(social_graph_service, social_graph_redis);
           _redis_cluster_client_pool->zadd(key, redis_zset.begin(),
                                            redis_zset.end());
+          MAGIC_RECEIVE_RESPONSE(social_graph_service, social_graph_redis);
         }
       } catch (const Error &err) {
         LOG(error) << err.what();

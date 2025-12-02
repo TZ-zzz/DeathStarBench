@@ -131,7 +131,9 @@ void UrlShortenHandler::ComposeUrls(
             mongoc_bulk_operation_insert (bulk, doc);
             bson_destroy(doc);
           }
+          MAGIC_SEND_REQUEST(url_shorten_service, url_shorten_mongodb);
           ret = mongoc_bulk_operation_execute (bulk, &reply, &error);
+          MAGIC_RECEIVE_RESPONSE(url_shorten_service, url_shorten_mongodb);
           if (!ret) {
             LOG(error) << "MongoDB error: "<< error.message;
             ServiceException se;

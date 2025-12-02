@@ -128,16 +128,20 @@ void UserTimelineHandler::WriteUserTimeline(
   auto update_span = opentracing::Tracer::Global()->StartSpan(
       "write_user_timeline_mongo_insert_client",
       {opentracing::ChildOf(&span->context())});
+  MAGIC_SEND_REQUEST(user_timeline_service, user_timeline_mongodb);
   bool updated = mongoc_collection_find_and_modify(collection, query, nullptr,
                                                    update, nullptr, false, true,
                                                    true, &reply, &error);
+  MAGIC_RECEIVE_RESPONSE(user_timeline_service, user_timeline_mongodb);
   update_span->Finish();
 
   if (!updated) {
     // update the newly inserted document (upsert: false)
+    MAGIC_SEND_REQUEST(user_timeline_service, user_timeline_mongodb);
     updated = mongoc_collection_find_and_modify(collection, query, nullptr,
                                                 update, nullptr, false, false,
                                                 true, &reply, &error);
+    MAGIC_RECEIVE_RESPONSE(user_timeline_service, user_timeline_mongodb);
     if (!updated) {
       LOG(error) << "Failed to update user-timeline for user " << user_id
                  << " to MongoDB: " << error.message;
@@ -165,15 +169,21 @@ void UserTimelineHandler::WriteUserTimeline(
       {opentracing::ChildOf(&span->context())});
   try {
     if (_redis_client_pool)
+      MAGIC_SEND_REQUEST(user_timeline_service, user_timeline_redis);
       _redis_client_pool->zadd(std::to_string(user_id), std::to_string(post_id),
                               timestamp, UpdateType::NOT_EXIST);
+      MAGIC_RECEIVE_RESPONSE(user_timeline_service, user_timeline_redis);
     else if (IsRedisReplicationEnabled()) {
+        MAGIC_SEND_REQUEST(user_timeline_service, user_timeline_redis);
         _redis_primary_pool->zadd(std::to_string(user_id), std::to_string(post_id),
                               timestamp, UpdateType::NOT_EXIST);
+        MAGIC_RECEIVE_RESPONSE(user_timeline_service, user_timeline_redis);
     }
     else
+      MAGIC_SEND_REQUEST(user_timeline_service, user_timeline_redis);
       _redis_cluster_client_pool->zadd(std::to_string(user_id), std::to_string(post_id),
                               timestamp, UpdateType::NOT_EXIST);
+      MAGIC_RECEIVE_RESPONSE(user_timeline_service, user_timeline_redis);
 
   } catch (const Error &err) {
     LOG(error) << err.what();
