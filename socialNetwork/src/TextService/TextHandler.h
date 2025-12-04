@@ -13,6 +13,7 @@
 #include "../ThriftClient.h"
 #include "../logger.h"
 #include "../tracing.h"
+#include "../magic_instruction.h"
 // #include "TraceCollector.h" //
 
 namespace social_network {

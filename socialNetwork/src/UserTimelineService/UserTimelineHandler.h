@@ -15,6 +15,7 @@
 #include "../ThriftClient.h"
 #include "../logger.h"
 #include "../tracing.h"
+#include "../magic_instruction.h"
 
 using namespace sw::redis;
 
@@ -168,22 +169,25 @@ void UserTimelineHandler::WriteUserTimeline(
       "write_user_timeline_redis_update_client",
       {opentracing::ChildOf(&span->context())});
   try {
-    if (_redis_client_pool)
+    if (_redis_client_pool){
       MAGIC_SEND_REQUEST(user_timeline_service, user_timeline_redis);
       _redis_client_pool->zadd(std::to_string(user_id), std::to_string(post_id),
                               timestamp, UpdateType::NOT_EXIST);
       MAGIC_RECEIVE_RESPONSE(user_timeline_service, user_timeline_redis);
+    }
     else if (IsRedisReplicationEnabled()) {
         MAGIC_SEND_REQUEST(user_timeline_service, user_timeline_redis);
         _redis_primary_pool->zadd(std::to_string(user_id), std::to_string(post_id),
                               timestamp, UpdateType::NOT_EXIST);
         MAGIC_RECEIVE_RESPONSE(user_timeline_service, user_timeline_redis);
     }
-    else
+    else {
+
       MAGIC_SEND_REQUEST(user_timeline_service, user_timeline_redis);
       _redis_cluster_client_pool->zadd(std::to_string(user_id), std::to_string(post_id),
                               timestamp, UpdateType::NOT_EXIST);
       MAGIC_RECEIVE_RESPONSE(user_timeline_service, user_timeline_redis);
+    }
 
   } catch (const Error &err) {
     LOG(error) << err.what();

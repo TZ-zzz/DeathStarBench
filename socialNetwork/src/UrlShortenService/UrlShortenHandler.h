@@ -14,6 +14,7 @@
 #include "../../gen-cpp/social_network_types.h"
 #include "../logger.h"
 #include "../tracing.h"
+#include "../magic_instruction.h"
 
 #define HOSTNAME "http://short-url/"
 

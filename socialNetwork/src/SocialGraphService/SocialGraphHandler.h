@@ -18,6 +18,7 @@
 #include "../ThriftClient.h"
 #include "../logger.h"
 #include "../tracing.h"
+#include "../magic_instruction.h"
 
 using namespace sw::redis;
 

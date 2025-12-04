@@ -5,8 +5,32 @@
 #define MAGIC_END_WORKLOAD()    __asm__ __volatile__ ("xchg %%r11, %%r11" : : : "r11");
 
 // Define more magic instructions For PostCompose workload
-#define MAGIC_SEND_REQUEST(caller, callee)  __asm__ __volatile__ ("mov %[id], %%r8\n\txchg %%r8, %%r8" : : [id] "r" (callee) : "r8");
-#define MAGIC_RECEIVE_RESPONSE(caller, callee)    __asm__ __volatile__ ("mov %[id], %%r9\n\txchg %%r9, %%r9" : : [id] "r" (callee) : "r9");
+#include <stdint.h>
+
+// -----------------------------------------------------------------------------
+// MAGIC INSTRUCTION: SEND REQUEST
+// Usage: MAGIC_SEND_REQUEST(callee_id)
+// -----------------------------------------------------------------------------
+#define MAGIC_SEND_REQUEST(caller, callee) do { \
+    uint64_t _callee_val = (uint64_t)(callee);  \
+    __asm__ __volatile__ (  \
+        "mov %0, %%r8\n\t"  \
+        "xchg %%r8, %%r8"   \
+        :                   \
+        : "r" (_callee_val) \
+        : "memory"          \
+    ); \
+} while(0)
+#define MAGIC_RECEIVE_RESPONSE(caller, callee) do { \
+    uint64_t _callee_val = (uint64_t)(callee); \
+    __asm__ __volatile__ (  \
+        "mov %0, %%r9\n\t"  \
+        "xchg %%r9, %%r9"   \
+        :                   \
+        : "r" (_callee_val) \
+        : "memory"          \
+    ); \
+} while(0)
 
 #define social_graph_service 2
 #define social_graph_mongodb 3

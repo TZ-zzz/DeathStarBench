@@ -14,6 +14,7 @@
 #include "../../gen-cpp/PostStorageService.h"
 #include "../logger.h"
 #include "../tracing.h"
+#include "../magic_instruction.h"
 
 namespace social_network {
 using json = nlohmann::json;

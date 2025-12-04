@@ -8,6 +8,7 @@
 #include "../../gen-cpp/MediaService.h"
 #include "../logger.h"
 #include "../tracing.h"
+#include "../magic_instruction.h"
 
 // 2018-01-01 00:00:00 UTC
 #define CUSTOM_EPOCH 1514764800000
