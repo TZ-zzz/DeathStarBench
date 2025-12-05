@@ -409,8 +409,12 @@ void ComposePostHandler::ComposePost(
   MAGIC_RECEIVE_RESPONSE(compose_post_service, media_service);
   auto text_return = text_future.get();
   post.text = text_return.text;
+  LOG(info) << post.text;
   post.urls = text_return.urls;
   post.user_mentions = text_return.user_mentions;
+  for (int i = 0; i < post.user_mentions.size(); i++){
+    LOG(info) << post.user_mentions[i].user_id;
+  }
   post.req_id = req_id;
   post.post_type = post_type;
   // }
@@ -453,6 +457,7 @@ void ComposePostHandler::ComposePost(
   //   throw;
   // }
   span->Finish();
+  LOG(info) << "end of composePost;";
   MAGIC_END_WORKLOAD();
 }
 
