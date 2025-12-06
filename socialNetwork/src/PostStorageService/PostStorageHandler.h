@@ -50,6 +50,7 @@ void PostStorageHandler::StorePost(
     int64_t req_id, const social_network::Post &post,
     const std::map<std::string, std::string> &carrier) {
   // Initialize a span
+  MAGIC_START_WORKLOAD();
   TextMapReader reader(carrier);
   std::map<std::string, std::string> writer_text_map;
   TextMapWriter writer(writer_text_map);
@@ -64,6 +65,7 @@ void PostStorageHandler::StorePost(
     ServiceException se;
     se.errorCode = ErrorCode::SE_MONGODB_ERROR;
     se.message = "Failed to pop a client from MongoDB pool";
+    MAGIC_END_WORKLOAD();
     throw se;
   }
 
@@ -74,6 +76,7 @@ void PostStorageHandler::StorePost(
     se.errorCode = ErrorCode::SE_MONGODB_ERROR;
     se.message = "Failed to create collection user from DB user";
     mongoc_client_pool_push(_mongodb_client_pool, mongodb_client);
+    MAGIC_END_WORKLOAD();
     throw se;
   }
 
@@ -154,6 +157,7 @@ void PostStorageHandler::StorePost(
     bson_destroy(new_doc);
     mongoc_collection_destroy(collection);
     mongoc_client_pool_push(_mongodb_client_pool, mongodb_client);
+    MAGIC_END_WORKLOAD();
     throw se;
   }
 
@@ -162,6 +166,7 @@ void PostStorageHandler::StorePost(
   mongoc_client_pool_push(_mongodb_client_pool, mongodb_client);
 
   span->Finish();
+  MAGIC_END_WORKLOAD();
 }
 
 void PostStorageHandler::ReadPost(

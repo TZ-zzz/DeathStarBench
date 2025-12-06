@@ -92,6 +92,7 @@ void UserTimelineHandler::WriteUserTimeline(
     int64_t req_id, int64_t post_id, int64_t user_id, int64_t timestamp,
     const std::map<std::string, std::string> &carrier) {
   // Initialize a span
+  MAGIC_START_WORKLOAD();
   TextMapReader reader(carrier);
   std::map<std::string, std::string> writer_text_map;
   TextMapWriter writer(writer_text_map);
@@ -106,6 +107,7 @@ void UserTimelineHandler::WriteUserTimeline(
     ServiceException se;
     se.errorCode = ErrorCode::SE_MONGODB_ERROR;
     se.message = "Failed to pop a client from MongoDB pool";
+    MAGIC_END_WORKLOAD();
     throw se;
   }
   auto collection = mongoc_client_get_collection(
@@ -115,6 +117,7 @@ void UserTimelineHandler::WriteUserTimeline(
     se.errorCode = ErrorCode::SE_MONGODB_ERROR;
     se.message = "Failed to create collection user-timeline from MongoDB";
     mongoc_client_pool_push(_mongodb_client_pool, mongodb_client);
+    MAGIC_END_WORKLOAD();
     throw se;
   }
   bson_t *query = bson_new();
@@ -154,6 +157,7 @@ void UserTimelineHandler::WriteUserTimeline(
       bson_destroy(&reply);
       mongoc_collection_destroy(collection);
       mongoc_client_pool_push(_mongodb_client_pool, mongodb_client);
+      MAGIC_END_WORKLOAD();
       throw se;
     }
   }
@@ -191,10 +195,12 @@ void UserTimelineHandler::WriteUserTimeline(
 
   } catch (const Error &err) {
     LOG(error) << err.what();
+    MAGIC_END_WORKLOAD();
     throw err;
   }
   redis_span->Finish();
   span->Finish();
+  MAGIC_END_WORKLOAD();
 }
 
 void UserTimelineHandler::ReadUserTimeline(

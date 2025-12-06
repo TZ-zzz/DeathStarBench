@@ -71,7 +71,7 @@ void UrlShortenHandler::ComposeUrls(
     int64_t req_id,
     const std::vector<std::string> &urls,
     const std::map<std::string, std::string> &carrier) {
-
+  MAGIC_START_WORKLOAD();
   // Initialize a span
   TextMapReader reader(carrier);
   std::map<std::string, std::string> writer_text_map;
@@ -102,6 +102,7 @@ void UrlShortenHandler::ComposeUrls(
             ServiceException se;
             se.errorCode = ErrorCode::SE_MONGODB_ERROR;
             se.message = "Failed to pop a client from MongoDB pool";
+            MAGIC_END_WORKLOAD();
             throw se;
           }
           auto collection = mongoc_client_get_collection(
@@ -111,6 +112,7 @@ void UrlShortenHandler::ComposeUrls(
             se.errorCode = ErrorCode::SE_MONGODB_ERROR;
             se.message = "Failed to create collection user from DB user";
             mongoc_client_pool_push(_mongodb_client_pool, mongodb_client);
+            MAGIC_END_WORKLOAD();
             throw se;
           }
 
@@ -144,6 +146,7 @@ void UrlShortenHandler::ComposeUrls(
             mongoc_bulk_operation_destroy(bulk);
             mongoc_collection_destroy(collection);
             mongoc_client_pool_push(_mongodb_client_pool, mongodb_client);
+            MAGIC_END_WORKLOAD();
             throw se;
           }
           bson_destroy (&reply);
@@ -160,12 +163,14 @@ void UrlShortenHandler::ComposeUrls(
       mongo_future.get();
     } catch (...) {
       LOG(error) << "Failed to upload shortened urls from MongoDB";
+      MAGIC_END_WORKLOAD();
       throw;
     }
   }
 
   _return = target_urls;
   span->Finish();
+  MAGIC_END_WORKLOAD();
 
 }
 

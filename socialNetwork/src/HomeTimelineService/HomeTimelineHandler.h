@@ -102,6 +102,7 @@ void HomeTimelineHandler::WriteHomeTimeline(
     const std::vector<int64_t> &user_mentions_id,
     const std::map<std::string, std::string> &carrier) {
   // Initialize a span
+  MAGIC_START_WORKLOAD();
   TextMapReader reader(carrier);
   auto parent_span = opentracing::Tracer::Global()->Extract(reader);
   auto span = opentracing::Tracer::Global()->StartSpan(
@@ -119,6 +120,7 @@ void HomeTimelineHandler::WriteHomeTimeline(
     ServiceException se;
     se.errorCode = ErrorCode::SE_THRIFT_CONN_ERROR;
     se.message = "Failed to connect to social-graph-service";
+    MAGIC_END_WORKLOAD();
     throw se;
   }
   auto social_graph_client = social_graph_client_wrapper->GetClient();
@@ -131,6 +133,7 @@ void HomeTimelineHandler::WriteHomeTimeline(
   } catch (...) {
     LOG(error) << "Failed to get followers from social-network-service";
     _social_graph_client_pool->Remove(social_graph_client_wrapper);
+    MAGIC_END_WORKLOAD();
     throw;
   }
   _social_graph_client_pool->Keepalive(social_graph_client_wrapper);
@@ -159,6 +162,7 @@ void HomeTimelineHandler::WriteHomeTimeline(
         MAGIC_RECEIVE_RESPONSE(home_timeline_service, home_timeline_redis);
       } catch (const Error &err) {
         LOG(error) << err.what();
+        MAGIC_END_WORKLOAD();
         throw err;
       }
     }
@@ -176,6 +180,7 @@ void HomeTimelineHandler::WriteHomeTimeline(
         }
         catch (const Error& err) {
             LOG(error) << err.what();
+            MAGIC_END_WORKLOAD();
             throw err;
         }
     }
@@ -212,11 +217,13 @@ void HomeTimelineHandler::WriteHomeTimeline(
 
       } catch (const Error &err) {
         LOG(error) << err.what();
+        MAGIC_END_WORKLOAD();
         throw err;
       }
     }
   }
   redis_span->Finish();
+  MAGIC_END_WORKLOAD();
 }
 
 

@@ -42,6 +42,7 @@ void UserMentionHandler::ComposeUserMentions(
     const std::vector<std::string> &usernames,
     const std::map<std::string, std::string> &carrier) {
   // Initialize a span
+  MAGIC_START_WORKLOAD();
   TextMapReader reader(carrier);
   std::map<std::string, std::string> writer_text_map;
   TextMapWriter writer(writer_text_map);
@@ -66,6 +67,7 @@ void UserMentionHandler::ComposeUserMentions(
       ServiceException se;
       se.errorCode = ErrorCode::SE_MEMCACHED_ERROR;
       se.message = "Failed to pop a client from memcached pool";
+      MAGIC_END_WORKLOAD();
       throw se;
     }
 
@@ -95,6 +97,7 @@ void UserMentionHandler::ComposeUserMentions(
       se.message = memcached_strerror(client, rc);
       memcached_pool_push(_memcached_client_pool, client);
       get_span->Finish();
+      MAGIC_END_WORKLOAD();
       throw se;
     }
 
@@ -123,6 +126,7 @@ void UserMentionHandler::ComposeUserMentions(
         se.message =
             "Cannot get usernames of request " + std::to_string(req_id);
         get_span->Finish();
+        MAGIC_END_WORKLOAD();
         throw se;
       }
       UserMention new_user_mention;
@@ -153,6 +157,7 @@ void UserMentionHandler::ComposeUserMentions(
         ServiceException se;
         se.errorCode = ErrorCode::SE_MONGODB_ERROR;
         se.message = "Failed to pop a client from MongoDB pool";
+        MAGIC_END_WORKLOAD();
         throw se;
       }
 
@@ -163,6 +168,7 @@ void UserMentionHandler::ComposeUserMentions(
         se.errorCode = ErrorCode::SE_MONGODB_ERROR;
         se.message = "Failed to create collection user from DB user";
         mongoc_client_pool_push(_mongodb_client_pool, mongodb_client);
+        MAGIC_END_WORKLOAD();
         throw se;
       }
 
@@ -204,6 +210,7 @@ void UserMentionHandler::ComposeUserMentions(
           mongoc_collection_destroy(collection);
           mongoc_client_pool_push(_mongodb_client_pool, mongodb_client);
           find_span->Finish();
+          MAGIC_END_WORKLOAD();
           throw se;
         }
         if (bson_iter_init_find(&iter, doc, "username")) {
@@ -217,6 +224,7 @@ void UserMentionHandler::ComposeUserMentions(
           mongoc_collection_destroy(collection);
           mongoc_client_pool_push(_mongodb_client_pool, mongodb_client);
           find_span->Finish();
+          MAGIC_END_WORKLOAD();
           throw se;
         }
         user_mentions.emplace_back(new_user_mention);
@@ -232,6 +240,7 @@ void UserMentionHandler::ComposeUserMentions(
 
   _return = user_mentions;
   span->Finish();
+  MAGIC_END_WORKLOAD();
 }
 
 }  // namespace social_network

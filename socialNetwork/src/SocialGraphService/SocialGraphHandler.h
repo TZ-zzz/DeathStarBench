@@ -487,6 +487,7 @@ void SocialGraphHandler::GetFollowers(
     std::vector<int64_t> &_return, const int64_t req_id, const int64_t user_id,
     const std::map<std::string, std::string> &carrier) {
   // Initialize a span
+  MAGIC_START_WORKLOAD();
   TextMapReader reader(carrier);
   std::map<std::string, std::string> writer_text_map;
   TextMapWriter writer(writer_text_map);
@@ -520,6 +521,7 @@ void SocialGraphHandler::GetFollowers(
     }
   } catch (const Error &err) {
     LOG(error) << err.what();
+    MAGIC_END_WORKLOAD();
     throw err;
   }
   redis_span->Finish();
@@ -539,6 +541,7 @@ void SocialGraphHandler::GetFollowers(
       ServiceException se;
       se.errorCode = ErrorCode::SE_MONGODB_ERROR;
       se.message = "Failed to pop a client from MongoDB pool";
+      MAGIC_END_WORKLOAD();
       throw se;
     }
     auto collection = mongoc_client_get_collection(
@@ -548,6 +551,7 @@ void SocialGraphHandler::GetFollowers(
       se.errorCode = ErrorCode::SE_MONGODB_ERROR;
       se.message = "Failed to create collection social_graph from MongoDB";
       mongoc_client_pool_push(_mongodb_client_pool, mongodb_client);
+      MAGIC_END_WORKLOAD();
       throw se;
     }
     bson_t *query = bson_new();
@@ -620,6 +624,7 @@ void SocialGraphHandler::GetFollowers(
         }
       } catch (const Error &err) {
         LOG(error) << err.what();
+        MAGIC_END_WORKLOAD();
         throw err;
       }
       redis_span->Finish();
@@ -633,6 +638,7 @@ void SocialGraphHandler::GetFollowers(
     }
   }
   span->Finish();
+  MAGIC_END_WORKLOAD();
 }
 
 void SocialGraphHandler::GetFollowees(

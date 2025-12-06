@@ -63,6 +63,7 @@ int64_t UniqueIdHandler::ComposeUniqueId(
     int64_t req_id, PostType::type post_type,
     const std::map<std::string, std::string> &carrier) {
   // Initialize a span
+  MAGIC_START_WORKLOAD();
   TextMapReader reader(carrier);
   std::map<std::string, std::string> writer_text_map;
   TextMapWriter writer(writer_text_map);
@@ -106,6 +107,7 @@ int64_t UniqueIdHandler::ComposeUniqueId(
   LOG(debug) << "The post_id of the request " << req_id << " is " << post_id;
 
   span->Finish();
+  MAGIC_END_WORKLOAD();
   return post_id;
 }
 

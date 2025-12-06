@@ -540,6 +540,7 @@ void UserHandler::ComposeCreatorWithUserId(
     Creator &_return, int64_t req_id, int64_t user_id,
     const std::string &username,
     const std::map<std::string, std::string> &carrier) {
+  MAGIC_START_WORKLOAD();
   TextMapReader reader(carrier);
   std::map<std::string, std::string> writer_text_map;
   TextMapWriter writer(writer_text_map);
@@ -555,6 +556,7 @@ void UserHandler::ComposeCreatorWithUserId(
   _return = creator;
 
   span->Finish();
+  MAGIC_END_WORKLOAD();
 }
 
 void UserHandler::Login(std::string &_return, int64_t req_id,

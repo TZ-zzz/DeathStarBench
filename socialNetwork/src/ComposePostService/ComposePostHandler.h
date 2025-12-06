@@ -126,6 +126,7 @@ Creator ComposePostHandler::_ComposeCreaterHelper(
     se.message = "Failed to connect to user-service";
     LOG(error) << se.message;
     span->Finish();
+    MAGIC_END_WORKLOAD();
     throw se;
   }
 
@@ -139,6 +140,7 @@ Creator ComposePostHandler::_ComposeCreaterHelper(
     LOG(error) << "Failed to send compose-creator to user-service";
     _user_service_client_pool->Remove(user_client_wrapper);
     span->Finish();
+    MAGIC_END_WORKLOAD();
     throw;
   }
   _user_service_client_pool->Keepalive(user_client_wrapper);
@@ -165,6 +167,7 @@ TextServiceReturn ComposePostHandler::_ComposeTextHelper(
     LOG(error) << se.message;
     ;
     span->Finish();
+    MAGIC_END_WORKLOAD();
     throw se;
   }
 
@@ -177,6 +180,7 @@ TextServiceReturn ComposePostHandler::_ComposeTextHelper(
     LOG(error) << "Failed to send compose-text to text-service";
     _text_service_client_pool->Remove(text_client_wrapper);
     span->Finish();
+    MAGIC_END_WORKLOAD();
     throw;
   }
   _text_service_client_pool->Keepalive(text_client_wrapper);
@@ -202,8 +206,8 @@ std::vector<Media> ComposePostHandler::_ComposeMediaHelper(
     se.errorCode = ErrorCode::SE_THRIFT_CONN_ERROR;
     se.message = "Failed to connect to media-service";
     LOG(error) << se.message;
-    ;
     span->Finish();
+    MAGIC_END_WORKLOAD();
     throw se;
   }
 
@@ -217,6 +221,7 @@ std::vector<Media> ComposePostHandler::_ComposeMediaHelper(
     LOG(error) << "Failed to send compose-media to media-service";
     _media_service_client_pool->Remove(media_client_wrapper);
     span->Finish();
+    MAGIC_END_WORKLOAD();
     throw;
   }
   _media_service_client_pool->Keepalive(media_client_wrapper);
@@ -242,6 +247,7 @@ int64_t ComposePostHandler::_ComposeUniqueIdHelper(
     se.message = "Failed to connect to unique_id-service";
     LOG(error) << se.message;
     span->Finish();
+    MAGIC_END_WORKLOAD();
     throw se;
   }
 
@@ -255,6 +261,7 @@ int64_t ComposePostHandler::_ComposeUniqueIdHelper(
     LOG(error) << "Failed to send compose-unique_id to unique_id-service";
     _unique_id_service_client_pool->Remove(unique_id_client_wrapper);
     span->Finish();
+    MAGIC_END_WORKLOAD();
     throw;
   }
   _unique_id_service_client_pool->Keepalive(unique_id_client_wrapper);
@@ -279,7 +286,7 @@ void ComposePostHandler::_UploadPostHelper(
     se.errorCode = ErrorCode::SE_THRIFT_CONN_ERROR;
     se.message = "Failed to connect to post-storage-service";
     LOG(error) << se.message;
-    ;
+    MAGIC_END_WORKLOAD();
     throw se;
   }
   auto post_storage_client = post_storage_client_wrapper->GetClient();
@@ -289,6 +296,7 @@ void ComposePostHandler::_UploadPostHelper(
   } catch (...) {
     _post_storage_client_pool->Remove(post_storage_client_wrapper);
     LOG(error) << "Failed to store post to post-storage-service";
+    MAGIC_END_WORKLOAD();
     throw;
   }
   _post_storage_client_pool->Keepalive(post_storage_client_wrapper);
@@ -313,7 +321,7 @@ void ComposePostHandler::_UploadUserTimelineHelper(
     se.errorCode = ErrorCode::SE_THRIFT_CONN_ERROR;
     se.message = "Failed to connect to user-timeline-service";
     LOG(error) << se.message;
-    ;
+    MAGIC_END_WORKLOAD();
     throw se;
   }
   auto user_timeline_client = user_timeline_client_wrapper->GetClient();
@@ -323,6 +331,7 @@ void ComposePostHandler::_UploadUserTimelineHelper(
                                             writer_text_map);
   } catch (...) {
     _user_timeline_client_pool->Remove(user_timeline_client_wrapper);
+    MAGIC_END_WORKLOAD();
     throw;
   }
   _user_timeline_client_pool->Keepalive(user_timeline_client_wrapper);
@@ -348,7 +357,7 @@ void ComposePostHandler::_UploadHomeTimelineHelper(
     se.errorCode = ErrorCode::SE_THRIFT_CONN_ERROR;
     se.message = "Failed to connect to home-timeline-service";
     LOG(error) << se.message;
-    ;
+    MAGIC_END_WORKLOAD();
     throw se;
   }
   auto home_timeline_client = home_timeline_client_wrapper->GetClient();
@@ -359,6 +368,7 @@ void ComposePostHandler::_UploadHomeTimelineHelper(
   } catch (...) {
     _home_timeline_client_pool->Remove(home_timeline_client_wrapper);
     LOG(error) << "Failed to write home timeline to home-timeline-service";
+    MAGIC_END_WORKLOAD();
     throw;
   }
   _home_timeline_client_pool->Keepalive(home_timeline_client_wrapper);

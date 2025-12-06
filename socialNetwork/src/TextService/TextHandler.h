@@ -45,7 +45,7 @@ void TextHandler::ComposeText(
     const std::map<std::string, std::string> &carrier) {
   
   // TraceCollector::GetInstance().LogTextRequest(req_id, text);
-
+  MAGIC_START_WORKLOAD();
   // Initialize a span
   TextMapReader reader(carrier);
   std::map<std::string, std::string> writer_text_map;
@@ -88,6 +88,7 @@ void TextHandler::ComposeText(
       ServiceException se;
       se.errorCode = ErrorCode::SE_THRIFT_CONN_ERROR;
       se.message = "Failed to connect to url-shorten-service";
+      MAGIC_END_WORKLOAD();
       throw se;
     }
     std::vector<Url> _return_urls;
@@ -98,6 +99,7 @@ void TextHandler::ComposeText(
     } catch (...) {
       LOG(error) << "Failed to upload urls to url-shorten-service";
       _url_client_pool->Remove(url_client_wrapper);
+      MAGIC_END_WORKLOAD();
       throw;
     }
     _url_client_pool->Keepalive(url_client_wrapper);
@@ -119,6 +121,7 @@ void TextHandler::ComposeText(
       ServiceException se;
       se.errorCode = ErrorCode::SE_THRIFT_CONN_ERROR;
       se.message = "Failed to connect to user-mention-service";
+      MAGIC_END_WORKLOAD();
       throw se;
     }
     std::vector<UserMention> _return_user_mentions;
@@ -131,6 +134,7 @@ void TextHandler::ComposeText(
     } catch (...) {
       LOG(error) << "Failed to upload user_mentions to user-mention-service";
       _user_mention_client_pool->Remove(user_mention_client_wrapper);
+      MAGIC_END_WORKLOAD();
       throw;
     }
 
@@ -144,6 +148,7 @@ void TextHandler::ComposeText(
     target_urls = shortened_urls_future.get();
   } catch (...) {
     LOG(error) << "Failed to get shortened urls from url-shorten-service";
+    MAGIC_END_WORKLOAD();
     throw;
   }
   // TraceCollector::GetInstance().LogUrlResult(req_id, target_urls);
@@ -153,6 +158,7 @@ void TextHandler::ComposeText(
     user_mentions = user_mention_future.get();
   } catch (...) {
     LOG(error) << "Failed to upload user mentions to user-mention-service";
+    MAGIC_END_WORKLOAD();
     throw;
   }
   // TraceCollector::GetInstance().LogUserMentionResult(req_id, user_mentions);
@@ -176,6 +182,7 @@ void TextHandler::ComposeText(
   _return.text = updated_text;
   _return.urls = target_urls;
   span->Finish();
+  MAGIC_END_WORKLOAD();
 }
 
 }  // namespace social_network

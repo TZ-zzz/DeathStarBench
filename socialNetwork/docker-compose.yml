@@ -1,7 +1,7 @@
 version: "3.9"
 services:
   social-graph-service:
-    image: tz/deathstarbench:latest
+    image: tangzhen1027/socialnetwork:latest
     hostname: social-graph-service
     ports:
       - 10000:9090
@@ -41,7 +41,7 @@ services:
     cpuset: "5"
 
   compose-post-service:
-    image: tz/deathstarbench:latest
+    image: tangzhen1027/socialnetwork:latest
     hostname: compose-post-service
     ports:
       - 10001:9090
@@ -55,7 +55,7 @@ services:
     cpuset: "6"
 
   post-storage-service:
-    image: tz/deathstarbench:latest
+    image: tangzhen1027/socialnetwork:latest
     hostname: post-storage-service
     ports:
       - 10002:9090
@@ -87,7 +87,7 @@ services:
     cpuset: "9"
 
   user-timeline-service:
-    image: tz/deathstarbench:latest
+    image: tangzhen1027/socialnetwork:latest
     hostname: user-timeline-service
     ports:
       - 10003:9090
@@ -119,7 +119,7 @@ services:
     cpuset: "12"
 
   url-shorten-service:
-    image: tz/deathstarbench:latest
+    image: tangzhen1027/socialnetwork:latest
     hostname: url-shorten-service
     ports:
       - 10004:9090
@@ -151,7 +151,7 @@ services:
     cpuset: "15"
 
   user-service:
-    image: tz/deathstarbench:latest
+    image: tangzhen1027/socialnetwork:latest
     hostname: user-service
     ports:
       - 10005:9090
@@ -183,7 +183,7 @@ services:
     cpuset: "18"
 
   media-service:
-    image: tz/deathstarbench:latest
+    image: tangzhen1027/socialnetwork:latest
     hostname: media-service
     ports:
       - 10006:9090
@@ -215,7 +215,7 @@ services:
     cpuset: "21"
 
   text-service:
-    image: tz/deathstarbench:latest
+    image: tangzhen1027/socialnetwork:latest
     hostname: text-service
     ports:
       - 10007:9090
@@ -229,7 +229,7 @@ services:
     cpuset: "22"
 
   unique-id-service:
-    image: tz/deathstarbench:latest
+    image: tangzhen1027/socialnetwork:latest
     hostname: unique-id-service
     ports:
       - 10008:9090
@@ -243,7 +243,7 @@ services:
     cpuset: "23"
 
   user-mention-service:
-    image: tz/deathstarbench:latest
+    image: tangzhen1027/socialnetwork:latest
     hostname: user-mention-service
     ports:
       - 10009:9090
@@ -257,7 +257,7 @@ services:
     cpuset: "24"
 
   home-timeline-service:
-    image: tz/deathstarbench:latest
+    image: tangzhen1027/socialnetwork:latest
     hostname: home-timeline-service
     ports:
       - 10010:9090
